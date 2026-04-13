@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محول النصوص العربية - مع خاصية النسخ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 25px; }
+        .box-group { margin-bottom: 20px; position: relative; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: #444; }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 18px;
+            box-sizing: border-box;
+            resize: none;
+            transition: all 0.3s;
+        }
+        textarea:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+            outline: none;
+        }
+        #output {
+            background-color: #f8f9fa;
+            direction: ltr;
+            text-align: left;
+            color: #202124;
+        }
+        
+        /* تصميم زر النسخ */
+        .copy-btn {
+            margin-top: 10px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover { background-color: #1557b0; }
+        .copy-btn:active { transform: scale(0.98); }
+        .copy-btn.success { background-color: #1e8e3e; }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #70757a;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>محرر النطق العربي</h2>
+    
+    <div class="box-group">
+        <label>النص العربي:</label>
+        <textarea id="input" placeholder="اكتب هنا... (مثال: كيف حالك)"></textarea>
+    </div>
+
+    <div class="box-group">
+        <label>الترجمة الصوتية (Latin):</label>
+        <textarea id="output" readonly placeholder="Result..."></textarea>
+        <button id="copyBtn" class="copy-btn">نسخ النص</button>
+    </div>
+    
+    <div class="footer">
+        تم البرمجة للتحويل الصوتي المباشر.
+    </div>
+</div>
+
+<script>
+    const inputArea = document.getElementById('input');
+    const outputArea = document.getElementById('output');
+    const copyBtn = document.getElementById('copyBtn');
+
+    // خريطة التحويل
+    const translitMap = {
+        'أ': 'a', 'إ': 'e', 'ا': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'h', 'خ': 'kh',
+        'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd',
+        'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l',
+        'م': 'm', 'ن': 'n', 'ه': 'h', 'و': 'w', 'ي': 'y', 'ة': 'h', 'ى': 'a', 'ء': "'",
+        'ئ': 'y', 'ؤ': 'o', ' ': ' '
+    };
+
+    // وظيفة التحويل اللحظي
+    inputArea.addEventListener('input', () => {
+        const inputText = inputArea.value;
+        let result = '';
+        for (let char of inputText) {
+            result += translitMap[char] !== undefined ? translitMap[char] : char;
+        }
+        outputArea.value = result.toLowerCase();
+    });
+
+    // وظيفة زر النسخ
+    copyBtn.addEventListener('click', () => {
+        const textToCopy = outputArea.value;
+        
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // تغيير شكل الزر عند النجاح
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = 'تم النسخ بنجاح! ✓';
+                copyBtn.classList.add('success');
+                
+                // إعادة الزر لحالته الأصلية بعد ثانيتين
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                    copyBtn.classList.remove('success');
+                }, 2000);
+            }).catch(err => {
+                console.error('فشل النسخ:', err);
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
